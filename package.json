@@ -1,0 +1,58 @@
+{
+  "name": "ustalar-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ustalar Topish — Telegram Bot + Telegram Mini App orqali professional ustalarni topish platformasi",
+  "license": "UNLICENSED",
+  "author": "Ustalar Topish Team",
+  "engines": {
+    "node": ">=20.0.0 <21.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.12.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:backend": "turbo run dev --filter=@ustalar/backend",
+    "dev:bot": "turbo run dev --filter=@ustalar/bot",
+    "dev:miniapp": "turbo run dev --filter=@ustalar/miniapp",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --cache",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\" --cache",
+    "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "test:unit": "turbo run test:unit",
+    "test:integration": "turbo run test:integration",
+    "test:e2e": "turbo run test:e2e",
+    "test:coverage": "turbo run test:coverage",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:generate": "pnpm --filter @ustalar/backend db:generate",
+    "db:migrate": "pnpm --filter @ustalar/backend db:migrate",
+    "db:migrate:deploy": "pnpm --filter @ustalar/backend db:migrate:deploy",
+    "db:seed": "pnpm --filter @ustalar/backend db:seed",
+    "db:studio": "pnpm --filter @ustalar/backend db:studio",
+    "db:reset": "pnpm --filter @ustalar/backend db:reset",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "eslint": "^9.15.0",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+}

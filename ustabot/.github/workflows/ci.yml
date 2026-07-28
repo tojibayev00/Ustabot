@@ -1,0 +1,180 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "9.12.0"
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @ustalar/backend db:generate
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm type-check
+
+      - name: Format check
+        run: pnpm format:check
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @ustalar/backend db:generate
+
+      - name: Backend unit tests
+        run: pnpm --filter @ustalar/backend test:unit
+
+      - name: Mini App unit tests
+        run: pnpm --filter @ustalar/miniapp test
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ustalar
+          POSTGRES_PASSWORD: ustalar_password
+          POSTGRES_DB: ustalar_test_db
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ustalar"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://ustalar:ustalar_password@localhost:5432/ustalar_test_db?schema=public
+      DATABASE_SHADOW_URL: postgresql://ustalar:ustalar_password@localhost:5432/ustalar_test_shadow_db?schema=public
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: ci-test-jwt-secret-must-be-at-least-32-characters
+      JWT_REFRESH_SECRET: ci-test-refresh-secret-must-be-at-least-32-chars
+      WEBAPP_URL: https://ci-test.example.com
+      TELEGRAM_BOT_TOKEN: "000000:CI-TEST-TOKEN"
+      TELEGRAM_BOT_USERNAME: ci_test_bot
+      CLOUDINARY_CLOUD_NAME: ci-test
+      CLOUDINARY_API_KEY: ci-test-key
+      CLOUDINARY_API_SECRET: ci-test-secret
+      INTERNAL_API_KEY: ci-test-internal-api-key-min-32-characters
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @ustalar/backend db:generate
+
+      - name: Run migrations
+        run: pnpm --filter @ustalar/backend db:migrate:deploy
+
+      - name: Backend integration tests
+        run: pnpm --filter @ustalar/backend test:integration
+
+  build:
+    name: Build All Apps
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @ustalar/backend db:generate
+
+      - name: Build backend
+        run: pnpm --filter @ustalar/backend build
+
+      - name: Build bot
+        run: pnpm --filter @ustalar/bot build
+
+      - name: Build miniapp
+        env:
+          VITE_API_BASE_URL: https://api.example.com/api/v1
+          VITE_APP_NAME: "Ustalar Topish"
+        run: pnpm --filter @ustalar/miniapp build
+
+      - name: Upload miniapp build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: miniapp-dist
+          path: apps/miniapp/dist
+          retention-days: 7

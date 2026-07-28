@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+.next
+coverage
+.turbo
+pnpm-lock.yaml
+*.md.bak
+generated
+prisma/migrations
+playwright-report

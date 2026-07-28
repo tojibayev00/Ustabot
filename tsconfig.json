@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "files": [],
+  "references": [
+    { "path": "apps/backend" },
+    { "path": "apps/bot" },
+    { "path": "apps/miniapp" },
+    { "path": "packages/shared" },
+    { "path": "packages/types" },
+    { "path": "packages/config" },
+    { "path": "packages/ui" }
+  ]
+}
