@@ -1,0 +1,61 @@
+name: Deploy Mini App to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/miniapp/**"
+      - "packages/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "9.12.0"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Mini App
+        working-directory: apps/miniapp
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_APP_NAME: "Ustalar Topish"
+        run: pnpm build
+
+      - name: SPA fallback (404.html) — client-side routing uchun
+        run: cp apps/miniapp/dist/index.html apps/miniapp/dist/404.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/miniapp/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
