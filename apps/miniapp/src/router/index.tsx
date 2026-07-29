@@ -27,7 +27,12 @@ function withSuspense(element: JSX.Element): JSX.Element {
   return <Suspense fallback={<FullScreenLoader />}>{element}</Suspense>;
 }
 
-const router = createBrowserRouter([
+// GitHub Pages kabi subpath ostida joylashtirilganda (masalan /ustabot/) to'g'ri
+// ishlashi uchun. Vite build vaqtida `base` konfiguratsiyasidan avtomatik oladi.
+const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const router = createBrowserRouter(
+  [
   {
     element: <MainLayout />,
     children: [
@@ -66,7 +71,9 @@ const router = createBrowserRouter([
     element: <SimpleLayout />,
     children: [{ path: "*", element: withSuspense(<NotFoundPage />) }]
   }
-]);
+],
+  { basename }
+);
 
 export function AppRouter(): JSX.Element {
   return <RouterProvider router={router} />;
