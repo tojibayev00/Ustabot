@@ -11,6 +11,14 @@
       "@/*": ["*"]
     }
   },
-  "include": ["src/**/*.ts", "prisma/seed.ts"],
-  "exclude": ["node_modules", "dist", "coverage", "**/*.test.ts", "**/*.spec.ts"]
+  {
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist"
+    // boshqa sozlamalar...
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "prisma"]
+}
+
 }
