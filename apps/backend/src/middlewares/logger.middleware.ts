@@ -1,4 +1,4 @@
-import pinoHttp from "pino-http";
+import { pinoHttp } from "pino-http";
 import type { Request, Response } from "express";
 import { logger } from "@/config/logger.js";
 
