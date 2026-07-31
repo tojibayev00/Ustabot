@@ -13,15 +13,15 @@ declare global {
 }
 
 function createPrismaClient(): PrismaClient {
+  // DIQQAT: log massivi har doim bir xil ("event") shaklda bo'lishi kerak —
+  // aks holda TypeScript $on("query"/"error") metodlarining turini to'g'ri
+  // chiqara olmaydi. Development/production farqi callback ichida hal qilinadi.
   return new PrismaClient({
-    log:
-      env.NODE_ENV === "development"
-        ? [
-            { emit: "event", level: "query" },
-            { emit: "event", level: "warn" },
-            { emit: "event", level: "error" }
-          ]
-        : [{ emit: "event", level: "error" }]
+    log: [
+      { emit: "event", level: "query" },
+      { emit: "event", level: "warn" },
+      { emit: "event", level: "error" }
+    ]
   });
 }
 
@@ -29,14 +29,15 @@ export const prisma = globalThis.__prisma ?? createPrismaClient();
 
 if (env.NODE_ENV === "development") {
   globalThis.__prisma = prisma;
-
-  prisma.$on("query", (event: { query: string; params: string; duration: number }) => {
-    logger.debug(
-      { duration: event.duration, params: event.params },
-      `Prisma query: ${event.query}`
-    );
-  });
 }
+
+prisma.$on("query", (event: { query: string; params: string; duration: number }) => {
+  if (env.NODE_ENV !== "development") return;
+  logger.debug(
+    { duration: event.duration, params: event.params },
+    `Prisma query: ${event.query}`
+  );
+});
 
 prisma.$on("error", (event: { message: string }) => {
   logger.error({ err: event }, "Prisma xatoligi");
