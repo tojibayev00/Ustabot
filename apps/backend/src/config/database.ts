@@ -30,7 +30,6 @@ export const prisma = globalThis.__prisma ?? createPrismaClient();
 if (env.NODE_ENV === "development") {
   globalThis.__prisma = prisma;
 
-  // @ts-expect-error — Prisma'ning event turi generic emas, runtime'da to'g'ri ishlaydi
   prisma.$on("query", (event: { query: string; params: string; duration: number }) => {
     logger.debug(
       { duration: event.duration, params: event.params },
@@ -39,7 +38,6 @@ if (env.NODE_ENV === "development") {
   });
 }
 
-// @ts-expect-error — Prisma error event tipi
 prisma.$on("error", (event: { message: string }) => {
   logger.error({ err: event }, "Prisma xatoligi");
 });
