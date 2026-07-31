@@ -1,4 +1,3 @@
-import "express";
 import type { Role } from "@/constants/roles.js";
 
 export interface AuthenticatedUser {
@@ -7,10 +6,15 @@ export interface AuthenticatedUser {
   role: Role;
 }
 
-declare module "express-serve-static-core" {
-  interface Request {
-    requestId: string;
-    startTime: number;
-    user?: AuthenticatedUser;
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface Request {
+      requestId: string;
+      startTime: number;
+      user?: AuthenticatedUser;
+    }
   }
 }
+
+export {};
