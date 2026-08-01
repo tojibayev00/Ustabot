@@ -21,7 +21,7 @@ function getFilesArray(req: Request): Express.Multer.File[] {
 }
 
 export const workerController = {
-  list: asyncHandler<unknown, unknown, unknown, ListWorkersQuery>(async (req, res) => {
+  list: asyncHandler<Record<string, string>, unknown, unknown, ListWorkersQuery>(async (req, res) => {
     const result = await workerService.listPublic(req.user?.id, req.query);
     sendSuccess(res, { data: result.items, meta: result.meta, message: MESSAGES.SUCCESS });
   }),
@@ -32,7 +32,7 @@ export const workerController = {
     sendSuccess(res, { data: worker, message: MESSAGES.SUCCESS });
   }),
 
-  register: asyncHandler<unknown, unknown, RegisterWorkerInput>(async (req, res) => {
+  register: asyncHandler<Record<string, string>, unknown, RegisterWorkerInput>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     const files = getFilesArray(req);
     const worker = await workerService.register(req.user.id, req.user.telegramId, req.body, files);
@@ -51,7 +51,7 @@ export const workerController = {
     sendSuccess(res, { data: status, message: MESSAGES.SUCCESS });
   }),
 
-  updateMyWorker: asyncHandler<unknown, unknown, UpdateWorkerInput>(async (req, res) => {
+  updateMyWorker: asyncHandler<Record<string, string>, unknown, UpdateWorkerInput>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     const worker = await workerService.updateMyWorker(req.user.id, req.body);
     sendSuccess(res, { data: worker, message: MESSAGES.UPDATED });
@@ -79,7 +79,7 @@ export const workerController = {
 
   // ---------- Admin ----------
 
-  adminList: asyncHandler<unknown, unknown, unknown, AdminListWorkersQuery>(async (req, res) => {
+  adminList: asyncHandler<Record<string, string>, unknown, unknown, AdminListWorkersQuery>(async (req, res) => {
     const result = await workerService.listForAdmin(req.query);
     sendSuccess(res, { data: result.items, meta: result.meta, message: MESSAGES.SUCCESS });
   }),
