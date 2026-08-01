@@ -29,7 +29,6 @@ redis.on("error", (error) => {
  */
 export function createQueueConnection(): Redis {
   return new Redis(env.REDIS_URL, {
-    keyPrefix: env.REDIS_PREFIX,
     maxRetriesPerRequest: null,
     enableReadyCheck: true
   });
