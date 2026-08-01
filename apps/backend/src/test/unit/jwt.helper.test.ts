@@ -6,7 +6,8 @@ import {
   verifyAccessToken,
   verifyRefreshToken
 } from "@/shared/jwt.helper.js";
-import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+
+const { JsonWebTokenError, TokenExpiredError } = jwt;
 
 describe("jwt.helper", () => {
   const payload = { sub: "user-1", telegramId: "123456789", role: "USER" as const };
