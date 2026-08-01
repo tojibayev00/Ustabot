@@ -1,4 +1,3 @@
-import type { Request, Response } from "express";
 import { categoryService } from "@/modules/category/service/category.service.js";
 import type {
   CreateCategoryInput,
@@ -11,7 +10,7 @@ import { MESSAGES } from "@/constants/messages.js";
 import { ADMIN_ROLES } from "@/constants/roles.js";
 
 export const categoryController = {
-  list: asyncHandler(async (req: Request, res: Response) => {
+  list: asyncHandler(async (req, res) => {
     const isAdminRequest = req.user && ADMIN_ROLES.includes(req.user.role);
     const categories = isAdminRequest
       ? await categoryService.listForAdmin()
