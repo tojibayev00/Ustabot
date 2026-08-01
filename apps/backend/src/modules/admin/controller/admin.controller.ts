@@ -1,4 +1,3 @@
-import type { Request, Response } from "express";
 import { adminService } from "@/modules/admin/service/admin.service.js";
 import type {
   ListUsersQuery,
@@ -16,19 +15,19 @@ export const adminController = {
     sendSuccess(res, { data: result.items, meta: result.meta, message: MESSAGES.SUCCESS });
   }),
 
-  blockUser: asyncHandler<UserIdParam>(async (req: Request, res: Response) => {
+  blockUser: asyncHandler<UserIdParam>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     await adminService.blockUser(req.user.id, req.params.id);
     sendSuccess(res, { data: null, message: MESSAGES.USER_BLOCKED });
   }),
 
-  unblockUser: asyncHandler<UserIdParam>(async (req: Request, res: Response) => {
+  unblockUser: asyncHandler<UserIdParam>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     await adminService.unblockUser(req.user.id, req.params.id);
     sendSuccess(res, { data: null, message: "Foydalanuvchi blokdan chiqarildi" });
   }),
 
-  changeRole: asyncHandler<UserIdParam, unknown, ChangeRoleInput>(async (req: Request, res: Response) => {
+  changeRole: asyncHandler<UserIdParam, unknown, ChangeRoleInput>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     await adminService.changeRole(req.user.role, req.user.id, req.params.id, req.body.role);
     sendSuccess(res, { data: null, message: MESSAGES.UPDATED });
