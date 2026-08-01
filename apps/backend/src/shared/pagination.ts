@@ -1,5 +1,9 @@
 import { PAGINATION } from "@/constants/pagination.js";
 
+// Qulaylik uchun qayta eksport — bir nechta servis fayli bu ikkisini
+// shared/pagination.js orqali import qiladi (asl manbasi shared/response.js)
+export { buildPaginationMeta, type PaginationMeta } from "@/shared/response.js";
+
 export interface PaginationParams {
   page: number;
   limit: number;
