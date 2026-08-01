@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import { workerService } from "@/modules/worker/service/worker.service.js";
 import type {
   RegisterWorkerInput,
@@ -26,44 +26,44 @@ export const workerController = {
     sendSuccess(res, { data: result.items, meta: result.meta, message: MESSAGES.SUCCESS });
   }),
 
-  getById: asyncHandler<WorkerIdParam>(async (req: Request, res: Response) => {
+  getById: asyncHandler<WorkerIdParam>(async (req, res) => {
     const ip = req.ip ?? req.socket.remoteAddress ?? "unknown";
     const worker = await workerService.getPublicById(req.params.id, { userId: req.user?.id, ip });
     sendSuccess(res, { data: worker, message: MESSAGES.SUCCESS });
   }),
 
-  register: asyncHandler<unknown, unknown, RegisterWorkerInput>(async (req: Request, res: Response) => {
+  register: asyncHandler<unknown, unknown, RegisterWorkerInput>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     const files = getFilesArray(req);
     const worker = await workerService.register(req.user.id, req.user.telegramId, req.body, files);
     sendSuccess(res, { data: worker, message: MESSAGES.WORKER_REGISTERED, status: 201 });
   }),
 
-  getMyWorker: asyncHandler(async (req: Request, res: Response) => {
+  getMyWorker: asyncHandler(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     const worker = await workerService.getMyWorker(req.user.id);
     sendSuccess(res, { data: worker, message: MESSAGES.SUCCESS });
   }),
 
-  getMyStatus: asyncHandler(async (req: Request, res: Response) => {
+  getMyStatus: asyncHandler(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     const status = await workerService.getMyStatus(req.user.id);
     sendSuccess(res, { data: status, message: MESSAGES.SUCCESS });
   }),
 
-  updateMyWorker: asyncHandler<unknown, unknown, UpdateWorkerInput>(async (req: Request, res: Response) => {
+  updateMyWorker: asyncHandler<unknown, unknown, UpdateWorkerInput>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     const worker = await workerService.updateMyWorker(req.user.id, req.body);
     sendSuccess(res, { data: worker, message: MESSAGES.UPDATED });
   }),
 
-  deleteMyWorker: asyncHandler(async (req: Request, res: Response) => {
+  deleteMyWorker: asyncHandler(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     await workerService.deleteMyWorker(req.user.id);
     sendSuccess(res, { data: null, message: MESSAGES.DELETED });
   }),
 
-  addGalleryImages: asyncHandler(async (req: Request, res: Response) => {
+  addGalleryImages: asyncHandler(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     const files = getFilesArray(req);
     if (files.length === 0) throw new BadRequestError("Kamida bitta rasm yuklang");
@@ -71,7 +71,7 @@ export const workerController = {
     sendSuccess(res, { data: worker, message: MESSAGES.UPDATED });
   }),
 
-  removeGalleryImage: asyncHandler<GalleryImageParam>(async (req: Request, res: Response) => {
+  removeGalleryImage: asyncHandler<GalleryImageParam>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     const worker = await workerService.removeGalleryImage(req.user.id, req.params.imageId);
     sendSuccess(res, { data: worker, message: MESSAGES.DELETED });
@@ -84,7 +84,7 @@ export const workerController = {
     sendSuccess(res, { data: result.items, meta: result.meta, message: MESSAGES.SUCCESS });
   }),
 
-  approve: asyncHandler<WorkerIdParam>(async (req: Request, res: Response) => {
+  approve: asyncHandler<WorkerIdParam>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     await workerService.approve(req.user.id, req.params.id);
     sendSuccess(res, { data: null, message: "Usta tasdiqlandi" });
@@ -96,19 +96,19 @@ export const workerController = {
     sendSuccess(res, { data: null, message: "Usta rad etildi" });
   }),
 
-  block: asyncHandler<WorkerIdParam>(async (req: Request, res: Response) => {
+  block: asyncHandler<WorkerIdParam>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     await workerService.block(req.user.id, req.params.id);
     sendSuccess(res, { data: null, message: "Usta bloklandi" });
   }),
 
-  activate: asyncHandler<WorkerIdParam>(async (req: Request, res: Response) => {
+  activate: asyncHandler<WorkerIdParam>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     await workerService.activate(req.user.id, req.params.id);
     sendSuccess(res, { data: null, message: "Usta faollashtirildi" });
   }),
 
-  removeByAdmin: asyncHandler<WorkerIdParam>(async (req: Request, res: Response) => {
+  removeByAdmin: asyncHandler<WorkerIdParam>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     await workerService.removeByAdmin(req.user.id, req.params.id);
     sendSuccess(res, { data: null, message: MESSAGES.DELETED });
