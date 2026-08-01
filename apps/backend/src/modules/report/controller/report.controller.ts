@@ -1,4 +1,3 @@
-import type { Request, Response } from "express";
 import { reportService } from "@/modules/report/service/report.service.js";
 import type {
   CreateReportInput,
@@ -12,7 +11,7 @@ import { MESSAGES } from "@/constants/messages.js";
 import { UnauthorizedError } from "@/errors/UnauthorizedError.js";
 
 export const reportController = {
-  create: asyncHandler<unknown, unknown, CreateReportInput>(async (req: Request, res: Response) => {
+  create: asyncHandler<unknown, unknown, CreateReportInput>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     const report = await reportService.create(req.user.id, req.body);
     sendSuccess(res, { data: report, message: MESSAGES.REPORT_SUBMITTED, status: 201 });
@@ -24,7 +23,7 @@ export const reportController = {
   }),
 
   updateStatus: asyncHandler<ReportIdParam, unknown, UpdateReportStatusInput>(
-    async (req: Request, res: Response) => {
+    async (req, res) => {
       if (!req.user) throw new UnauthorizedError();
       const report = await reportService.updateStatus(req.params.id, req.user.id, req.body.status);
       sendSuccess(res, { data: report, message: MESSAGES.UPDATED });
