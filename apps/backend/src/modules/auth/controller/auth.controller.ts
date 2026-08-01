@@ -1,4 +1,3 @@
-import type { Request, Response } from "express";
 import { authService } from "@/modules/auth/service/auth.service.js";
 import type { TelegramAuthInput, RefreshTokenInput } from "@/modules/auth/validators/auth.validators.js";
 import { asyncHandler } from "@/utils/asyncHandler.js";
@@ -21,7 +20,7 @@ export const authController = {
     sendSuccess(res, { data: tokens, message: MESSAGES.SUCCESS });
   }),
 
-  logout: asyncHandler<unknown, unknown, RefreshTokenInput>(async (req: Request, res: Response) => {
+  logout: asyncHandler<unknown, unknown, RefreshTokenInput>(async (req, res) => {
     if (!req.user) {
       throw new UnauthorizedError();
     }
@@ -29,7 +28,7 @@ export const authController = {
     sendSuccess(res, { data: null, message: "Tizimdan muvaffaqiyatli chiqdingiz" });
   }),
 
-  logoutAll: asyncHandler(async (req: Request, res: Response) => {
+  logoutAll: asyncHandler(async (req, res) => {
     if (!req.user) {
       throw new UnauthorizedError();
     }
@@ -37,7 +36,7 @@ export const authController = {
     sendSuccess(res, { data: null, message: "Barcha qurilmalardan chiqildi" });
   }),
 
-  me: asyncHandler(async (req: Request, res: Response) => {
+  me: asyncHandler(async (req, res) => {
     if (!req.user) {
       throw new UnauthorizedError();
     }
