@@ -1,4 +1,3 @@
-import type { Request, Response } from "express";
 import { notificationService } from "@/modules/notification/service/notification.service.js";
 import type {
   ListNotificationsQuery,
@@ -11,7 +10,7 @@ import { UnauthorizedError } from "@/errors/UnauthorizedError.js";
 
 export const notificationController = {
   list: asyncHandler<unknown, unknown, unknown, ListNotificationsQuery>(
-    async (req: Request, res: Response) => {
+    async (req, res) => {
       if (!req.user) throw new UnauthorizedError();
       const result = await notificationService.list(req.user.id, req.query);
       sendSuccess(res, {
@@ -22,13 +21,13 @@ export const notificationController = {
     }
   ),
 
-  markAsRead: asyncHandler<NotificationIdParam>(async (req: Request, res: Response) => {
+  markAsRead: asyncHandler<NotificationIdParam>(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     const notification = await notificationService.markAsRead(req.user.id, req.params.id);
     sendSuccess(res, { data: notification, message: MESSAGES.UPDATED });
   }),
 
-  markAllAsRead: asyncHandler(async (req: Request, res: Response) => {
+  markAllAsRead: asyncHandler(async (req, res) => {
     if (!req.user) throw new UnauthorizedError();
     const result = await notificationService.markAllAsRead(req.user.id);
     sendSuccess(res, { data: result, message: MESSAGES.UPDATED });
