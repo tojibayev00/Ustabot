@@ -2,20 +2,12 @@ import { PrismaClient } from "@prisma/client";
 import { env } from "@/config/env.js";
 import { logger } from "@/config/logger.js";
 
-/**
- * Development rejimida `tsx watch` fayllarni qayta yuklaganda
- * bir nechta PrismaClient instance yaratilib ketmasligi uchun
- * global obyektga saqlanadi.
- */
-declare global {
-  // eslint-disable-next-line no-var
-  var __prisma: PrismaClient | undefined;
-}
-
-function createPrismaClient(): PrismaClient {
-  // DIQQAT: log massivi har doim bir xil ("event") shaklda bo'lishi kerak —
-  // aks holda TypeScript $on("query"/"error") metodlarining turini to'g'ri
-  // chiqara olmaydi. Development/production farqi callback ichida hal qilinadi.
+function createPrismaClient() {
+  // DIQQAT: qaytish turini qo'lda "PrismaClient" deb yozib qo'ymang —
+  // shunday qilinsa Prisma'ning log-event generic turi yo'qoladi va
+  // $on("query"/"error") "never" xatoligini beradi. Shu sababli funksiya
+  // qaytish turi TypeScript'ning o'zi orqali xulosa chiqarilishiga (inference)
+  // qoldirilgan.
   return new PrismaClient({
     log: [
       { emit: "event", level: "query" },
@@ -23,6 +15,16 @@ function createPrismaClient(): PrismaClient {
       { emit: "event", level: "error" }
     ]
   });
+}
+
+/**
+ * Development rejimida `tsx watch` fayllarni qayta yuklaganda
+ * bir nechta PrismaClient instance yaratilib ketmasligi uchun
+ * global obyektga saqlanadi.
+ */
+declare global {
+  // eslint-disable-next-line no-var
+  var __prisma: ReturnType<typeof createPrismaClient> | undefined;
 }
 
 export const prisma = globalThis.__prisma ?? createPrismaClient();
