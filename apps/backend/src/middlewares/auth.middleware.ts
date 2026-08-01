@@ -1,7 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
-import { TokenExpiredError, JsonWebTokenError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { verifyAccessToken } from "@/shared/jwt.helper.js";
 import { UnauthorizedError } from "@/errors/UnauthorizedError.js";
+
+const { TokenExpiredError, JsonWebTokenError } = jwt;
 
 function extractBearerToken(req: Request): string | null {
   const header = req.headers.authorization;
