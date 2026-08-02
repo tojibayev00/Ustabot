@@ -24,17 +24,29 @@ redis.on("error", (error) => {
 
 /**
  * BullMQ uchun alohida Redis connection.
- * DIQQAT: bu yerda `keyPrefix` ISHLATILMAYDI — BullMQ ioredis'ning
+ * DIQQAT 1: bu yerda `keyPrefix` ISHLATILMAYDI — BullMQ ioredis'ning
  * o'z key-prefiksini qo'llab-quvvatlamaydi ("BullMQ: ioredis does not
  * support ioredis prefixes, use the prefix option instead"). Prefiks kerak
  * bo'lsa, u BullMQ Queue/Worker yaratilayotganda `prefix` optioni orqali
  * beriladi (config/queue.ts).
+ *
+ * DIQQAT 2: `.on("error", ...)` MAJBURIY — Node.js'da EventEmitter'ga
+ * "error" tinglovchisi ulanmagan bo'lsa, keyingi "error" hodisasi butun
+ * process'ni uncaught exception sifatida qulatib yuboradi. Har bir queue
+ * connection'da tarmoq uzilishi (ECONNRESET) bo'lishi mumkinligi sababli,
+ * bu listener xavfsizlik uchun shart.
  */
 export function createQueueConnection(): Redis {
-  return new Redis(env.REDIS_URL, {
+  const connection = new Redis(env.REDIS_URL, {
     maxRetriesPerRequest: null,
     enableReadyCheck: true
   });
+
+  connection.on("error", (error) => {
+    logger.warn({ err: error }, "Queue Redis connection xatoligi (avtomatik qayta ulanmoqda)");
+  });
+
+  return connection;
 }
 
 /**
