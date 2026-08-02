@@ -23,9 +23,12 @@ redis.on("error", (error) => {
 });
 
 /**
- * BullMQ uchun alohida Redis connection (maxRetriesPerRequest null bo'lishi shart).
- * Cache uchun ishlatilgan `redis` instance'ni queue bilan aralashtirmaslik tavsiya etiladi,
- * shuning uchun ikkinchi connection yaratiladi.
+ * BullMQ uchun alohida Redis connection.
+ * DIQQAT: bu yerda `keyPrefix` ISHLATILMAYDI — BullMQ ioredis'ning
+ * o'z key-prefiksini qo'llab-quvvatlamaydi ("BullMQ: ioredis does not
+ * support ioredis prefixes, use the prefix option instead"). Prefiks kerak
+ * bo'lsa, u BullMQ Queue/Worker yaratilayotganda `prefix` optioni orqali
+ * beriladi (config/queue.ts).
  */
 export function createQueueConnection(): Redis {
   return new Redis(env.REDIS_URL, {
@@ -34,8 +37,22 @@ export function createQueueConnection(): Redis {
   });
 }
 
+/**
+ * DIQQAT: Redis'ga birinchi ulanish urinishi vaqtincha muvaffaqiyatsiz bo'lishi mumkin
+ * (masalan Railway'ning ichki tarmog'ida qisqa "ECONNRESET" holati) — bu KUTILGAN va
+ * halokatli emas. `retryStrategy` orqali ioredis orqa fonda avtomatik qayta ulanishda
+ * davom etadi. Shuning uchun bu yerda xatolik butun serverni to'xtatib qo'ymaydi,
+ * faqat ogohlantirish sifatida logga yoziladi.
+ */
 export async function connectRedis(): Promise<void> {
-  await redis.connect();
+  try {
+    await redis.connect();
+  } catch (error) {
+    logger.warn(
+      { err: error },
+      "Redis'ga birinchi urinishda ulanib bo'lmadi — orqa fonda avtomatik qayta urinilmoqda"
+    );
+  }
 }
 
 export async function disconnectRedis(): Promise<void> {
