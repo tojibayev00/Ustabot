@@ -5,6 +5,7 @@ import path from "node:path";
 export default defineConfig({
   base: "/ustabot/",
   plugins: [react()],
+  base: "./",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src")
