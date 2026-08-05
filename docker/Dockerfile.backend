@@ -18,8 +18,9 @@ COPY apps/backend/package.json ./apps/backend/package.json
 COPY packages/shared/package.json ./packages/shared/package.json
 COPY packages/types/package.json ./packages/types/package.json
 COPY packages/config/package.json ./packages/config/package.json
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --filter @ustalar/backend... 
+
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter @ustalar/backend
 
 ########################################
 # Development
@@ -56,8 +57,8 @@ COPY --from=deps /app/pnpm-workspace.yaml /app/package.json /app/pnpm-lock.yaml*
 COPY --from=deps /app/apps/backend/package.json ./apps/backend/package.json
 COPY --from=deps /app/packages ./packages
 
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --prod --filter @ustalar/backend...
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --prod --filter @ustalar/backend
 
 COPY --from=build /app/apps/backend/dist ./apps/backend/dist
 COPY --from=build /app/apps/backend/prisma ./apps/backend/prisma
